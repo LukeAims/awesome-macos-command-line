@@ -15,7 +15,7 @@ For more terminal shell goodness, please also see this list's sister list [Aweso
 
 When you find something helpful in here, you could buy me a coffee. I spend a lot of time and effort on curating this list. Keeping me properly caffeinated accelerates things. And it would really make my day. Kindness of strangers and all that. If you can't or won't, no hard feelings. It's available completely free for a reason. Still, it would be awesome.
 
-Patreon: https://www.patreon.com/herrbischoff
+<a href="https://www.buymeacoffee.com/Oi5LPJ4lr" target="_blank"><img src="https://bmc-cdn.nyc3.digitaloceanspaces.com/BMC-button-images/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a>
 
 
 ## Contents
@@ -107,7 +107,9 @@ Patreon: https://www.patreon.com/herrbischoff
     - [Remote Apple Events](#remote-apple-events)
     - [Root User](#root-user)
     - [Safe Mode Boot](#safe-mode-boot)
+    - [Save Dialogs](#save-dialogs)
     - [Screenshots](#screenshots)
+    - [Sidecar](#sidecar)
     - [Software Installation](#software-installation)
     - [Software Update](#software-update)
     - [Software Version](#software-version)
@@ -433,7 +435,7 @@ sudo tmutil verifychecksums /path/to/backup
 #### Compile Sane Vim
 Compiling MacVim via Homebrew with all bells and whistles, including overriding system Vim.
 ```bash
-brew install macvim --HEAD --with-cscope --with-lua --with-override-system-vim --with-luajit --with-python
+brew install macvim --HEAD
 ```
 
 #### Neovim
@@ -492,6 +494,18 @@ defaults write com.apple.dock mru-spaces -bool false && \
 killall Dock
 ```
 
+#### Autohide
+
+``` bash
+# Enable
+defaults write com.apple.dock autohide -bool true && \
+killall Dock
+
+# Disable (Default)
+defaults write com.apple.dock autohide -bool false && \
+killall Dock
+```
+
 #### Icon Bounce
 Global setting whether Dock icons should bounce when the respective application demands your attention.
 ```bash
@@ -540,13 +554,6 @@ defaults write com.apple.dock scroll-to-open -bool false && \
 killall Dock
 ```
 
-#### Enable Dock Autohide
-
-``` bash
-defaults write com.apple.dock autohide -bool true && \
-killall Dock
-```
-
 #### Set Auto Show/Hide Delay
 The float number defines the show/hide delay in ms.
 ```bash
@@ -576,6 +583,20 @@ killall Dock
 defaults write com.apple.dock static-only -bool false && \
 killall Dock
 ```
+
+#### Single App Mode
+When clicking an application icon in the Dock, the respective windows will come
+to the front, but all other application windows will be hidden.
+```bash
+# Enable
+defaults write com.apple.dock single-app -bool true && \
+killall Dock
+
+# Disable (Default)
+defaults write com.apple.dock single-app -bool false && \
+killall Dock
+```
+
 
 ## Documents
 
@@ -985,6 +1006,10 @@ From Sierra onward, they are included in Terminal.app.
 cp -v /Applications/Utilities/Terminal.app/Contents/Resources/Fonts/SFMono-* ~/Library/Fonts
 ```
 
+Starting in Catalina, the Utilities apps (including Terminal.app) are now found in the `/System` folder.
+```bash
+cp -v /System/Applications/Utilities/Terminal.app/Contents/Resources/Fonts/SFMono-* ~/Library/Fonts
+```
 
 ## Functions
 
@@ -1213,6 +1238,25 @@ afplay -q 1 filename.mp3
 say 'All your base are belong to us!'
 ```
 
+#### Startup Chime
+Older Macs:
+```bash
+# Enable (Default)
+sudo nvram BootAudio=%01
+
+# Disable
+sudo nvram BootAudio=%00
+```
+
+From 2016 models onwards:
+```bash
+# Enable
+sudo nvram StartupMute=%00
+
+# Disable (Default)
+sudo nvram StartupMute=%01
+```
+
 ### Video
 
 #### Auto-Play Videos in QuickTime Player
@@ -1336,7 +1380,13 @@ dig +short myip.opendns.com @resolver1.opendns.com
 Alternative that works on all networks.
 ```bash
 curl -s https://api.ipify.org && echo
-````
+```
+
+#### Show Network Interface Information
+Undocumented flag of the `scutil` command.
+```bash
+scutil --nwi
+```
 
 ### TFTP
 
@@ -1396,6 +1446,14 @@ networksetup -setairportpower en0 on
 - [Homebrew](https://brew.sh) - The missing package manager for OS X. The most popular choice.
 - [MacPorts](https://www.macports.org) - Compile, install and upgrade either command-line, X11 or Aqua based open-source software. Very clean, it's what I use.
 
+### Homebrew
+
+#### Full Uninstall
+
+```bash
+ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/uninstall)"
+```
+
 
 ## Printing
 
@@ -1450,6 +1508,7 @@ spctl --remove /path/to/Application.app
 ```
 
 #### Manage Gatekeeper
+Especially helpful with the annoying Catalina system popup blocking execution of non-signed apps.
 ```bash
 # Status
 spctl --status
@@ -1801,6 +1860,12 @@ sudo nvram boot-args="-x"
 sudo nvram boot-args=""
 ```
 
+### Save Dialogs
+Significantly improve the now rather slow animation in save dialogs.
+```bash
+defaults write NSGlobalDomain NSWindowResizeTime .001
+```
+
 ### Screenshots
 
 #### Take Delayed Screenshot
@@ -1842,7 +1907,26 @@ killall SystemUIServer
 installer -pkg /path/to/installer.pkg -target /
 ```
 
+### Sidecar
+
+#### Use on Incompatible Macs
+This may or may not work, depending on the age of the machine.
+```bash
+# Enable
+defaults write com.apple.sidecar.display AllowAllDevices -bool true && \
+defaults write com.apple.sidecar.display hasShownPref -bool true
+
+# Disable (Default)
+defaults delete com.apple.sidecar.display
+```
+
 ### Software Update
+
+#### Ignore Specific Software Update
+The identifier can be found via `softwareupdate --list`. In the example below, being on Mojave, will ignore all update prompts to Catalina, since the latter removes 32-bit support.
+```bash
+sudo /usr/sbin/softwareupdate --ignore "macOS Catalina"
+```
 
 #### Install All Available Software Updates
 ```bash
@@ -1857,7 +1941,7 @@ defaults write com.apple.SoftwareUpdate ScheduleFrequency -int 1
 
 #### Show Available Software Updates
 ```bash
-sudo softwareupdate -l
+sudo softwareupdate --list
 ```
 
 #### Set Software Update Server
@@ -1942,7 +2026,6 @@ sudo systemsetup setusingnetworktime off
 ```
 
 
-
 ## Terminal
 
 #### Ring Terminal Bell
@@ -1953,6 +2036,7 @@ tput bel
 
 ### Alternative Terminals
 
+- [Alacritty](https://github.com/jwilm/alacritty) - Cross-platform, GPU-accelerated terminal emulator.
 - [iTerm2](https://iterm2.com) - A better Terminal.app.
 - [kitty](https://sw.kovidgoyal.net/kitty/) - Modern, GPU-accelerated terminal emulator.
 
@@ -2033,7 +2117,8 @@ OS X 10.10                 | Yosemite           | October 16, 2014   | 10.10.5 (
 OS X 10.11                 | El Capitan         | September 30, 2015 | 10.11.6 (15G31) (July 18, 2016)
 macOS 10.12                | Sierra             | September 20, 2016 | 10.12.6 (16G29) (July 19, 2017)
 macOS 10.13                | High Sierra        | September 25, 2017 | 10.13.6 (17G65) (July 9, 2018)
-macOS 10.14                | Mojave             | September 24, 2018 | 10.14 (18A391) (September 24, 2018)
+macOS 10.14                | Mojave             | September 24, 2018 | 10.14.6 (18G3020) (January 28, 2020)
+macOS 10.15                | Catalina           | October 7, 2019    | 10.15.3 (19D76) (January 28, 2020)
 
 
 ## License
